@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Painel de gestão · IFCM Cuida{% endblock %}
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-4">
+  <div><p class="eyebrow">Administração</p><h1 class="display-6 fw-bold mb-0">Painel de gestão</h1></div>
+  <a class="btn btn-brand" href="{{ url_for('admin.create_category') }}">＋ Nova categoria</a>
+</div>
+<div class="row g-3 mb-5">
+  <div class="col-sm-4"><div class="stat-card"><span>Solicitações</span><strong>{{ total_reports }}</strong></div></div>
+  <div class="col-sm-4"><div class="stat-card"><span>Em aberto</span><strong>{{ open_reports }}</strong></div></div>
+  <div class="col-sm-4"><div class="stat-card"><span>Usuários</span><strong>{{ total_users }}</strong></div></div>
+</div>
+<div class="row g-4">
+  <section class="col-lg-7">
+    <div class="section-heading"><h2 class="h4">Solicitações recentes</h2><a href="{{ url_for('reports.list_reports') }}">Ver todas</a></div>
+    <div class="table-responsive surface">
+      <table class="table align-middle mb-0">
+        <thead><tr><th>Problema</th><th>Status</th><th>Local</th></tr></thead>
+        <tbody>
+          {% for report in recent_reports %}
+            <tr>
+              <td><a href="{{ url_for('reports.report_detail', report_id=report.id) }}">{{ report.title }}</a><small class="d-block text-secondary">{{ report.category.name }}</small></td>
+              <td><span class="status-pill">{{ report.status }}</span></td><td>{{ report.location }}</td>
+            </tr>
+          {% else %}<tr><td colspan="3" class="text-secondary py-4 text-center">Nenhuma solicitação cadastrada.</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="col-lg-5">
+    <div class="section-heading"><h2 class="h4">Categorias</h2></div>
+    <div class="surface category-list">
+      {% for category in categories %}
+        <div class="category-row">
+          <div><strong>{{ category.name }}</strong><small class="d-block text-secondary">{{ category.description or "Sem descrição" }}</small></div>
+          <div class="text-end"><span class="badge {{ 'text-bg-success' if category.active else 'text-bg-secondary' }}">{{ "Ativa" if category.active else "Inativa" }}</span><a class="d-block small mt-1" href="{{ url_for('admin.edit_category', category_id=category.id) }}">Editar</a></div>
+        </div>
+      {% else %}<p class="text-secondary p-3 mb-0">Nenhuma categoria cadastrada.</p>{% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ report.title }} · IFCM Cuida{% endblock %}
+{% block content %}
+<a class="back-link" href="{{ url_for('reports.list_reports') }}">← Voltar às solicitações</a>
+<div class="row g-4 mt-1">
+  <div class="col-lg-8">
+    <article class="detail-card">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="category-pill">{{ report.category.name }}</span>
+        <span class="status-pill">{{ report.status }}</span>
+      </div>
+      <h1 class="display-6 fw-bold">{{ report.title }}</h1>
+      <p class="text-secondary">Registrado por {{ report.author.name }} em {{ report.created_at.strftime("%d/%m/%Y às %H:%M") }}</p>
+      {% if report.image_filename %}
+        <img class="report-image" src="{{ url_for('reports.uploaded_file', filename=report.image_filename) }}" alt="Foto enviada para a solicitação">
+      {% endif %}
+      <h2 class="h6 text-uppercase text-secondary mt-4">Descrição</h2>
+      <p class="report-full-description">{{ report.description }}</p>
+      <div class="detail-facts">
+        <div><span>Local</span><strong>{{ report.location }}</strong></div>
+        <div><span>Prioridade</span><strong>{{ report.priority }}</strong></div>
+        <div><span>Categoria</span><strong>{{ report.category.name }}</strong></div>
+      </div>
+    </article>
+    <section class="detail-card mt-4">
+      <h2 class="h4 mb-4">Histórico da solicitação</h2>
+      <div class="timeline">
+        {% for entry in report.history %}
+          <div class="timeline-entry">
+            <span class="timeline-dot"></span>
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-1">
+              <strong>{{ entry.status }}</strong>
+              <small class="text-secondary">{{ entry.created_at.strftime("%d/%m/%Y às %H:%M") }}</small>
+            </div>
+            <p class="text-secondary mb-1">{{ entry.note or "Status atualizado." }}</p>
+            <small class="text-secondary">Por {{ entry.actor.name }}</small>
+          </div>
+        {% else %}
+          <p class="text-secondary">Nenhuma atualização registrada.</p>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+  {% if current_user.is_admin %}
+    <aside class="col-lg-4">
+      <section class="form-card">
+        <p class="eyebrow">Área do gestor</p>
+        <h2 class="h4 mb-3">Atualizar solicitação</h2>
+        <form method="post" action="{{ url_for('reports.update_report', report_id=report.id) }}">
+          {{ update_form.hidden_tag() }}
+          <div class="mb-3">{{ update_form.status.label(class="form-label") }}{{ update_form.status(class="form-select") }}</div>
+          <div class="mb-3">{{ update_form.priority.label(class="form-label") }}{{ update_form.priority(class="form-select") }}</div>
+          <div class="mb-3">{{ update_form.note.label(class="form-label") }}{{ update_form.note(class="form-control", rows="3", placeholder="Descreva a ação ou atualização") }}</div>
+          {{ update_form.submit(class="btn btn-brand w-100") }}
+        </form>
+      </section>
+    </aside>
+  {% endif %}
+</div>
+{% endblock %}
